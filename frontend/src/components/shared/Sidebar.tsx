@@ -1,20 +1,26 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Settings, FileText } from 'lucide-react';
+import { Home, Settings, FileText, LucideIcon } from 'lucide-react';
 import { useState } from 'react';
+
+interface NavLinkProps {
+  to: string;
+  icon: LucideIcon;
+  label: string;
+}
 
 const Sidebar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   
-  const isActive = (path: string) => {
+  const isActive = (path: string): boolean => {
     return location.pathname === path;
   };
   
-  const closeSidebar = () => {
+  const closeSidebar = (): void => {
     setIsOpen(false);
   };
   
-  const NavLink = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => {
+  const NavLink = ({ to, icon: Icon, label }: NavLinkProps) => {
     const active = isActive(to);
     
     return (

@@ -1,4 +1,4 @@
-import { LogicRule } from '../types';
+import { LogicRule, FormValue } from '../types';
 
 /**
  * Evaluates logic rules for a given field based on current form data
@@ -8,7 +8,7 @@ import { LogicRule } from '../types';
  */
 export const evaluateLogicRules = (
   rules: LogicRule[] | undefined,
-  formData: Record<string, any>
+  formData: Record<string, FormValue>
 ): {
   show: boolean;
   hide: boolean;

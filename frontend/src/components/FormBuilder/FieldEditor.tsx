@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { FieldDefinition, FieldType, LogicRule } from '../../types';
+import { FieldDefinition, FieldType, LogicRule, LogicOperator, LogicAction } from '../../types';
 
 interface FieldEditorProps {
   field: FieldDefinition;
@@ -16,7 +16,10 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
   const currentFieldIndex = allFields.findIndex(f => f.id === field.id);
   const previousFields = allFields.slice(0, currentFieldIndex);
 
-  const handleFieldChange = (key: keyof FieldDefinition, value: any) => {
+  const handleFieldChange = <K extends keyof FieldDefinition>(
+    key: K, 
+    value: FieldDefinition[K]
+  ): void => {
     onUpdate({ ...field, [key]: value });
   };
 
@@ -193,7 +196,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
 
                   <select
                     value={rule.operator}
-                    onChange={(e) => updateLogicRule(index, { ...rule, operator: e.target.value as any })}
+                    onChange={(e) => updateLogicRule(index, { ...rule, operator: e.target.value as LogicOperator })}
                     className="px-2 py-1.5 border border-dark-border rounded-md text-xs bg-dark-card text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-input-focus"
                   >
                     <option value="eq">equals</option>
@@ -206,7 +209,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
 
                   <input
                     type="text"
-                    value={rule.value}
+                    value={String(rule.value ?? '')}
                     onChange={(e) => updateLogicRule(index, { ...rule, value: e.target.value })}
                     className="px-2 py-1.5 border border-dark-border rounded-md text-xs bg-dark-card text-dark-text-primary placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-input-focus"
                     placeholder="value"
@@ -214,7 +217,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
 
                   <select
                     value={rule.action}
-                    onChange={(e) => updateLogicRule(index, { ...rule, action: e.target.value as any })}
+                    onChange={(e) => updateLogicRule(index, { ...rule, action: e.target.value as LogicAction })}
                     className="px-2 py-1.5 border border-dark-border rounded-md text-xs bg-dark-card text-dark-text-primary focus:outline-none focus:ring-2 focus:ring-input-focus"
                   >
                     <option value="show">Show</option>

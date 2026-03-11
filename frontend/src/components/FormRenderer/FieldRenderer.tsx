@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Check, AlertCircle, Lock } from 'lucide-react';
-import { FieldDefinition } from '../../types';
+import { FieldDefinition, FormValue, FieldOption } from '../../types';
 import { evaluateLogicRules } from '../../utils/logicEngine';
 import apiClient from '../../api/client';
 
 interface FieldRendererProps {
   field: FieldDefinition;
-  value: any;
-  onChange: (value: any) => void;
-  formData: Record<string, any>;
+  value: FormValue;
+  onChange: (value: FormValue) => void;
+  formData: Record<string, FormValue>;
   error?: string;
 }
 
 const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendererProps) => {
-  const [dynamicOptions, setDynamicOptions] = useState<any[]>([]);
+  const [dynamicOptions, setDynamicOptions] = useState<FieldOption[]>([]);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -68,8 +68,9 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
 
       // Store the file path returned from backend
       onChange(response.data.path);
-    } catch (err: any) {
-      setUploadError(err.response?.data?.detail || 'Failed to upload video');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload video';
+      setUploadError(errorMessage);
       setVideoPreview(null);
       onChange(null);
     } finally {
@@ -118,7 +119,7 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
         <div className="relative">
           <input
             type="text"
-            value={value || ''}
+            value={value != null ? String(value) : ''}
             onChange={(e) => onChange(e.target.value)}
             className={baseInputClass}
             required={isRequired}
@@ -139,7 +140,7 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
         <div className="relative">
           <input
             type="number"
-            value={value || ''}
+            value={value != null ? String(value) : ''}
             onChange={(e) => onChange(e.target.value)}
             className={baseInputClass}
             required={isRequired}
@@ -159,7 +160,7 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
       {field.type === 'textarea' && (
         <div className="relative">
           <textarea
-            value={value || ''}
+            value={value != null ? String(value) : ''}
             onChange={(e) => onChange(e.target.value)}
             className={`${baseInputClass} min-h-[120px] resize-y`}
             required={isRequired}
@@ -180,14 +181,14 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
       {field.type === 'select' && (
         <div className="relative">
           <select
-            value={value || ''}
+            value={value != null ? String(value) : ''}
             onChange={(e) => onChange(e.target.value)}
             className={baseInputClass}
             required={isRequired}
             disabled={isDisabled}
           >
             <option value="">-- Select an option --</option>
-            {options.map((opt: any, idx: number) => {
+            {options.map((opt: FieldOption, idx: number) => {
               // Handle both string arrays and object arrays (like branches)
               const optValue = typeof opt === 'string' ? opt : opt.id;
               const optLabel = typeof opt === 'string' ? opt : opt.name;
@@ -210,7 +211,7 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
       {/* Radio Group */}
       {field.type === 'radio_group' && (
         <div className="space-y-3 bg-input-bg p-4 rounded-input border border-input-border">
-          {options.map((opt: any, idx: number) => {
+          {options.map((opt: FieldOption, idx: number) => {
             const optValue = typeof opt === 'string' ? opt : opt.id;
             const optLabel = typeof opt === 'string' ? opt : opt.name;
             return (

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
+import { FileText } from 'lucide-react';
 import FieldRenderer from './FieldRenderer';
-import { FormDefinition, Branch } from '../../types';
+import { FormDefinition, Branch, FormValue } from '../../types';
 import apiClient from '../../api/client';
+import { Card, CardBody, Button, Alert, Select, PageHeader } from '../ui';
 
 const FormRenderer = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -40,8 +42,9 @@ const FormRenderer = () => {
           const formResponse = await apiClient.get(`/forms/definitions/${formId}`);
           setFormDefinition(formResponse.data);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to load form');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load form';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -50,7 +53,7 @@ const FormRenderer = () => {
     loadData();
   }, [formId]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Record<string, FormValue>) => {
     if (!selectedBranch) {
       setError('Please select a branch');
       return;
@@ -73,8 +76,9 @@ const FormRenderer = () => {
       setTimeout(() => {
         navigate('/');
       }, 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to submit form');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit form';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -97,44 +101,36 @@ const FormRenderer = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 pt-16 lg:pt-6 bg-dark-bg min-h-screen">
-      <h1 className="text-3xl font-bold mb-2 text-dark-text-primary">{formDefinition.title}</h1>
-      {formDefinition.description && (
-        <p className="text-dark-text-secondary mb-6 text-sm">{formDefinition.description}</p>
-      )}
+    <div className="min-h-screen bg-dark-bg">
+      <div className="max-w-4xl mx-auto px-6 py-8 pt-16 lg:pt-8">
+        <PageHeader
+          icon={FileText}
+          iconColor="text-input-success"
+          title={formDefinition.title}
+          description={formDefinition.description}
+        />
 
-      {error && (
-        <div className="mb-4 p-3 bg-input-error/10 border border-input-error/50 text-input-error rounded-lg text-sm">
-          {error}
-        </div>
-      )}
+        {error && <Alert variant="error" message={error} className="mb-4" />}
+        {success && <Alert variant="success" message={success} className="mb-4" />}
 
-      {success && (
-        <div className="mb-4 p-3 bg-input-success/10 border border-input-success/50 text-input-success rounded-lg text-sm">
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-dark-card p-6 rounded-lg shadow-lg border border-dark-border">
-        {/* Branch Selection */}
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-dark-text-primary mb-1.5">
-            Select Branch <span className="text-input-error">*</span>
-          </label>
-          <select
-            value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-            className="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent text-dark-text-primary text-sm"
-            required
-          >
-            <option value="">-- Select a branch --</option>
-            {branches.map((branch) => (
-              <option key={branch.id} value={branch.id}>
-                {branch.name} - {branch.location}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Card>
+          <CardBody>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Branch Selection */}
+              <Select
+                label="Select Branch"
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                required
+                className="mb-4"
+              >
+                <option value="">-- Select a branch --</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name} - {branch.location}
+                  </option>
+                ))}
+              </Select>
 
         {/* Render Form Fields */}
         <div className="space-y-3">
@@ -158,23 +154,26 @@ const FormRenderer = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
             type="button"
+            variant="outline"
             onClick={() => navigate('/')}
-            className="px-4 py-2 border border-dark-border text-dark-text-secondary rounded-lg hover:bg-dark-hover transition font-medium text-sm"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            disabled={submitting}
-            className="px-4 py-2 bg-input-success text-white rounded-lg hover:bg-emerald-700 transition font-medium disabled:bg-gray-600 disabled:cursor-not-allowed text-sm"
+            variant="success"
+            loading={submitting}
           >
             {submitting ? 'Submitting...' : 'Submit Form'}
-          </button>
+          </Button>
         </div>
       </form>
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
 };

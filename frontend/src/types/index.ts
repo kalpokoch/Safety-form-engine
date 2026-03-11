@@ -3,10 +3,13 @@ export type FieldType = 'text' | 'number' | 'textarea' | 'select' | 'radio_group
 export type LogicOperator = 'eq' | 'neq' | 'gte' | 'lte' | 'gt' | 'lt';
 export type LogicAction = 'show' | 'hide' | 'require' | 'highlight';
 
+// Form values can be strings, numbers, booleans, or null
+export type FormValue = string | number | boolean | null;
+
 export interface LogicRule {
   when: string;
   operator: LogicOperator;
-  value: any;
+  value: FormValue;
   action: LogicAction;
   color?: string;
 }
@@ -44,5 +47,8 @@ export interface Branch {
 export interface FormSubmission {
   form_id: string;
   branch_id: string;
-  submission_data: Record<string, any>;
+  submission_data: Record<string, FormValue>;
 }
+
+// Option types for select and radio fields
+export type FieldOption = string | { id: string; name: string; location?: string };

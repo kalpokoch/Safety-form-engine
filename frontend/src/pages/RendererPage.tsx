@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FileText } from 'lucide-react';
 import apiClient from '../api/client';
 import { FormDefinition } from '../types';
+import { Card, CardHeader, CardBody, CardFooter, Button, Alert, PageHeader } from '../components/ui';
 
 const RendererPage = () => {
   const navigate = useNavigate();
@@ -17,8 +19,9 @@ const RendererPage = () => {
         // For now, we'll handle the error gracefully
         const response = await apiClient.get('/forms/definitions');
         setForms(response.data);
-      } catch (err: any) {
-        setError('No forms available or failed to load forms');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'No forms available or failed to load forms';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -40,22 +43,27 @@ const RendererPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg py-8 pt-16 lg:pt-8">
-      <div className="max-w-4xl mx-auto px-6">
-        <h1 className="text-3xl font-bold mb-6 text-dark-text-primary">Available Forms</h1>
+    <div className="min-h-screen bg-dark-bg">
+      <div className="max-w-5xl mx-auto px-6 py-8 pt-16 lg:pt-8">
+        <PageHeader
+          icon={FileText}
+          iconColor="text-input-success"
+          title="Available Forms"
+          description="Select a form to fill out"
+        />
 
         {error && forms.length === 0 && (
-          <div className="bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 px-4 py-3 rounded-lg mb-6">
+          <Alert variant="warning" className="mb-8">
             {error}
-            <p className="mt-2 text-sm">
+            <p className="mt-2">
               To test the form renderer, you can manually navigate to:{' '}
               <code className="bg-yellow-500/20 px-2 py-1 rounded text-xs">/renderer/[form-id]</code>
             </p>
-          </div>
+          </Alert>
         )}
 
         {forms.length === 0 && !error ? (
-          <div className="bg-dark-card rounded-lg shadow-lg p-8 text-center border border-dark-border">
+          <Card className="text-center p-8">
             <svg
               className="w-12 h-12 text-dark-text-muted mx-auto mb-4"
               fill="none"
@@ -73,33 +81,32 @@ const RendererPage = () => {
             <p className="text-dark-text-secondary mb-4 text-sm">
               There are no forms created yet. Create one using the Form Builder.
             </p>
-            <button
-              onClick={() => navigate('/builder')}
-              className="px-4 py-2 bg-input-success text-white rounded-lg hover:bg-emerald-700 transition font-medium text-sm"
-            >
+            <Button variant="success" onClick={() => navigate('/builder')}>
               Go to Form Builder
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
             {forms.map((form) => (
-              <div
+              <Card
                 key={form.id}
-                className="bg-dark-card rounded-lg shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-dark-border hover:border-input-focus/50"
+                variant="interactive"
+                clickable
                 onClick={() => handleFormSelect(form.id!)}
               >
-                <h2 className="text-xl font-semibold text-dark-text-primary mb-2">{form.title}</h2>
-                {form.description && (
-                  <p className="text-dark-text-secondary mb-4 text-sm">{form.description}</p>
-                )}
-                <div className="flex justify-between items-center text-xs text-dark-text-muted mb-4">
-                  <span>Version {form.version || 1}</span>
-                  <span>{form.field_schema.fields.length} fields</span>
-                </div>
-                <button className="w-full px-4 py-2 bg-input-focus text-white rounded-lg hover:bg-indigo-600 transition font-medium text-sm">
-                  Fill Out Form
-                </button>
-              </div>
+                <CardHeader title={form.title} description={form.description} />
+                <CardBody className="pt-0">
+                  <div className="flex justify-between items-center text-xs text-dark-text-muted mb-4">
+                    <span>Version {form.version || 1}</span>
+                    <span>{form.field_schema.fields.length} fields</span>
+                  </div>
+                </CardBody>
+                <CardFooter>
+                  <Button variant="primary" fullWidth>
+                    Fill Out Form
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}
