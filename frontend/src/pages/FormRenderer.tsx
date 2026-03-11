@@ -1,20 +1,25 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { fetchFormDefinition, fetchBranches, submitForm, uploadVideo } from "@/services/api";
 import FormRendererSkeleton from "@/components/FormRendererSkeleton";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { CheckCircle2, Copy, RefreshCw, ArrowRight, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import type { FormDefinition, Branch, FormField, LogicRule } from "@/types/forms";
 
 const FormRenderer = () => {
   const { formId } = useParams<{ formId: string }>();
+  const navigate = useNavigate();
   const [formDef, setFormDef] = useState<FormDefinition | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const { control, handleSubmit, watch, formState: { errors }, setError } = useForm<Record<string, any>>({
+  const { control, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<Record<string, any>>({
     defaultValues: { branch_id: "" },
   });
 
@@ -61,11 +66,13 @@ const FormRenderer = () => {
     }
     const { branch_id, ...submission_data } = data;
     setSubmitting(true);
+    setErrorMessage("");
     try {
       const result = await submitForm(formId, { branch_id, submission_data });
+      const submissionIdGenerated = result?.id || crypto.randomUUID();
       const subs = JSON.parse(localStorage.getItem("submissions") || "[]");
       subs.unshift({
-        id: result?.id || crypto.randomUUID(),
+        id: submissionIdGenerated,
         form_id: formId,
         branch_id,
         branch_name: branches.find((b) => b.id === branch_id)?.name,
@@ -73,19 +80,94 @@ const FormRenderer = () => {
         submission_data,
       });
       localStorage.setItem("submissions", JSON.stringify(subs));
-      toast.success("Form submitted successfully!");
-    } catch {
-      toast.error("Failed to submit form");
+      setSubmissionId(submissionIdGenerated);
+      setIsSubmitted(true);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to submit form. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleReset = () => {
+    reset();
+    setIsSubmitted(false);
+    setSubmissionId("");
+    setErrorMessage("");
+  };
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(submissionId);
+    toast.success("Submission ID copied!");
+  };
+
   if (loading) return <FormRendererSkeleton />;
   if (!formDef) return <div className="p-12 text-center text-muted-foreground">Form not found</div>;
 
+  // Success Card View
+  if (isSubmitted) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        <div className="content-card p-8 md:p-12">
+          <div className="flex flex-col items-center text-center space-y-6">
+            {/* Success Icon */}
+            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            </div>
+
+            {/* Success Message */}
+            <div className="space-y-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Form Submitted Successfully!</h2>
+              <p className="text-muted-foreground">Your safety inspection has been recorded.</p>
+            </div>
+
+            {/* Submission ID */}
+            <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-lg">
+              <span className="text-xs text-muted-foreground">Submission ID:</span>
+              <code className="font-mono text-sm text-foreground">{submissionId.slice(0, 8)}...</code>
+              <button
+                onClick={handleCopyId}
+                className="ml-2 p-1 hover:bg-background rounded transition-colors"
+                title="Copy ID"
+              >
+                <Copy className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto pt-4">
+              <button
+                onClick={handleReset}
+                className="btn-secondary flex items-center justify-center gap-2 py-3 px-6 min-h-[44px]"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Submit Another Response
+              </button>
+              <button
+                onClick={() => navigate('/submissions')}
+                className="btn-primary flex items-center justify-center gap-2 py-3 px-6 min-h-[44px]"
+              >
+                Go to Submissions
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Form View
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
+      {/* Error Banner */}
+      {errorMessage && (
+        <div className="mb-4 md:mb-6 flex items-center gap-3 p-3 md:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          {errorMessage}
+        </div>
+      )}
+
       <div className="content-card">
         <div className="p-4 md:p-6 border-b border-border">
           <h1 className="text-xl md:text-2xl font-bold text-foreground">{formDef.title}</h1>
