@@ -4,7 +4,7 @@ import { FileText, Send, GitBranch, Layers, Plus, Copy, ArrowRight, Search, Shar
 import { toast } from "sonner";
 import StatsCard from "@/components/StatsCard";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
-import { fetchBranches, fetchAllForms } from "@/services/api";
+import { fetchBranches, fetchAllForms, fetchSubmissions } from "@/services/api";
 import type { FormDefinition } from "@/types/forms";
 
 const Dashboard = () => {
@@ -12,8 +12,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [savedForms, setSavedForms] = useState<FormDefinition[]>([]);
-
-  const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+  const [submissions, setSubmissions] = useState<any[]>([]);
 
   const handleShare = (formId: string) => {
     const shareableLink = `${window.location.origin}/form/${formId}`;
@@ -29,10 +28,11 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    Promise.all([fetchBranches(), fetchAllForms()])
-      .then(([branchesData, formsData]) => { 
+    Promise.all([fetchBranches(), fetchAllForms(), fetchSubmissions()])
+      .then(([branchesData, formsData, submissionsData]) => { 
         setBranches(branchesData); 
         setSavedForms(formsData);
+        setSubmissions(submissionsData);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

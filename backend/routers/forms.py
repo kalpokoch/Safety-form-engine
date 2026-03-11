@@ -105,3 +105,8 @@ def submit_form(form_id: UUID, payload: FormSubmissionCreate, db: Session = Depe
     db.commit()
     db.refresh(submission)
     return submission
+
+@router.get("/forms/submissions", response_model=list[FormSubmissionOut])
+def list_submissions(db: Session = Depends(get_db)):
+    submissions = db.query(FormSubmission).all()
+    return submissions

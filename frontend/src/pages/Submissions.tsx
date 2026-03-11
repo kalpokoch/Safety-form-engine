@@ -1,16 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import type { Submission } from "@/types/forms";
+import { fetchSubmissions, fetchBranches } from "@/services/api";
 
 const Submissions = () => {
   const [search, setSearch] = useState("");
-  const submissions: Submission[] = JSON.parse(localStorage.getItem("submissions") || "[]");
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = submissions.filter(
+  useEffect(() => {
+    Promise.all([fetchSubmissions(), fetchBranches()])
+      .then(([submissionsData, branchesData]) => { 
+        setSubmissions(submissionsData);
+        setBranches(branchesData);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Map branch_id to branch_name
+  const submissionsWithBranchName = submissions.map(sub => ({
+    ...sub,
+    branch_name: branches.find(b => b.id === sub.branch_id)?.name || ''
+  }));
+
+  const filtered = submissionsWithBranchName.filter(
     (s) =>
       s.form_id.toLowerCase().includes(search.toLowerCase()) ||
       (s.branch_name || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground mb-4 md:mb-6">Submissions</h1>
+        <div className="content-card p-8 text-center text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">

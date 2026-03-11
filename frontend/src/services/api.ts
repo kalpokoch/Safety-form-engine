@@ -28,6 +28,9 @@ export const submitForm = (
   body: { branch_id: string; submission_data: Record<string, any> }
 ) => api.post(`/forms/${formId}/submission`, body).then((r) => r.data);
 
+export const fetchSubmissions = () =>
+  api.get("/forms/submissions").then((r) => r.data);
+
 export const uploadVideo = (file: File) => {
   const formData = new FormData();
   formData.append("file", file);

@@ -69,18 +69,7 @@ const FormRenderer = () => {
     setErrorMessage("");
     try {
       const result = await submitForm(formId, { branch_id, submission_data });
-      const submissionIdGenerated = result?.id || crypto.randomUUID();
-      const subs = JSON.parse(localStorage.getItem("submissions") || "[]");
-      subs.unshift({
-        id: submissionIdGenerated,
-        form_id: formId,
-        branch_id,
-        branch_name: branches.find((b) => b.id === branch_id)?.name,
-        submitted_at: new Date().toISOString(),
-        submission_data,
-      });
-      localStorage.setItem("submissions", JSON.stringify(subs));
-      setSubmissionId(submissionIdGenerated);
+      setSubmissionId(result?.id || crypto.randomUUID());
       setIsSubmitted(true);
     } catch (err: any) {
       setErrorMessage(err?.message || "Failed to submit form. Please try again.");
