@@ -3,9 +3,9 @@ import { useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { fetchFormDefinition, fetchBranches, submitForm, uploadVideo } from "@/services/api";
 import FormRendererSkeleton from "@/components/FormRendererSkeleton";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import type { FormDefinition, Branch, FormField, LogicRule } from "@/types/forms";
-import { CheckCircle2, AlertCircle } from "lucide-react";
 
 const FormRenderer = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -13,7 +13,6 @@ const FormRenderer = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [submitResult, setSubmitResult] = useState<"success" | "error" | null>(null);
 
   const { control, handleSubmit, watch, formState: { errors }, setError } = useForm<Record<string, any>>({
     defaultValues: { branch_id: "" },
@@ -74,10 +73,8 @@ const FormRenderer = () => {
         submission_data,
       });
       localStorage.setItem("submissions", JSON.stringify(subs));
-      setSubmitResult("success");
       toast.success("Form submitted successfully!");
     } catch {
-      setSubmitResult("error");
       toast.error("Failed to submit form");
     } finally {
       setSubmitting(false);
@@ -89,17 +86,6 @@ const FormRenderer = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
-      {submitResult === "success" && (
-        <div className="mb-4 md:mb-6 flex items-center gap-3 p-3 md:p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm">
-          <CheckCircle2 className="w-5 h-5 shrink-0" /> Form submitted successfully!
-        </div>
-      )}
-      {submitResult === "error" && (
-        <div className="mb-4 md:mb-6 flex items-center gap-3 p-3 md:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
-          <AlertCircle className="w-5 h-5 shrink-0" /> Submission failed. Please try again.
-        </div>
-      )}
-
       <div className="content-card">
         <div className="p-4 md:p-6 border-b border-border">
           <h1 className="text-xl md:text-2xl font-bold text-foreground">{formDef.title}</h1>
