@@ -108,4 +108,95 @@
   .table-row-hover {
     @apply hover:bg-muted/50 transition-colors;
   }
+
+  /* Animated Card Styles */
+  .animated-card {
+    display: block;
+    position: relative;
+    background-color: #f2f8f9;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .animated-card:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -20px;
+    right: -20px;
+    background: #2563eb;
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    transition: transform 0.5s ease-out;
+  }
+
+  .animated-card:hover:before {
+    transform: scale(21);
+  }
+
+  .animated-card:hover .card-label {
+    transition: all 0.3s ease-out;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .animated-card:hover .card-value {
+    transition: all 0.3s ease-out;
+    color: #fff;
+  }
+
+  .animated-card:hover .card-icon-bg {
+    transition: all 0.3s ease-out;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .animated-card:hover .card-icon {
+    transition: all 0.3s ease-out;
+    color: #fff;
+  }
+
+  .animated-card.disabled {
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .animated-card.disabled:before {
+    display: none;
+  }
+
+  .animated-card.disabled:hover .card-label,
+  .animated-card.disabled:hover .card-value,
+  .animated-card.disabled:hover .card-icon-bg,
+  .animated-card.disabled:hover .card-icon {
+    transition: none;
+  }
+
+  .go-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #2563eb;
+    border-radius: 0 0.75rem 0 32px;
+  }
+
+  .go-arrow {
+    margin-top: -4px;
+    margin-right: -4px;
+    color: white;
+    font-family: courier, sans-serif;
+  }
 }

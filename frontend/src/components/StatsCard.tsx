@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { AnimatedCard } from "@/components/ui/animated-card";
 
 interface StatsCardProps {
   icon: LucideIcon;
@@ -9,20 +10,20 @@ interface StatsCardProps {
 }
 
 const StatsCard = ({ icon: Icon, label, value, change, changeType = "positive" }: StatsCardProps) => (
-  <div className="stats-card flex flex-col gap-3">
+  <AnimatedCard>
     <div className="flex items-center justify-between">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-        <Icon className="w-5 h-5 text-muted-foreground" />
+      <span className="text-sm text-muted-foreground card-label">{label}</span>
+      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center card-icon-bg">
+        <Icon className="w-5 h-5 text-muted-foreground card-icon" />
       </div>
     </div>
-    <div className="text-3xl font-bold text-foreground">{value}</div>
+    <div className="text-3xl font-bold text-foreground mt-3 card-value">{value}</div>
     {change && (
-      <span className={`text-xs font-medium ${changeType === "positive" ? "text-success" : "text-destructive"}`}>
+      <span className={`text-xs font-medium mt-3 inline-block ${changeType === "positive" ? "text-success" : "text-destructive"}`}>
         ↗ {change}
       </span>
     )}
-  </div>
+  </AnimatedCard>
 );
 
 export default StatsCard;
