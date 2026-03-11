@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Check, AlertCircle, Lock } from 'lucide-react';
 import { FieldDefinition } from '../../types';
 import { evaluateLogicRules } from '../../utils/logicEngine';
 import apiClient from '../../api/client';
@@ -84,106 +85,188 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
     ? { backgroundColor: logicResult.color || '#ffff00' }
     : {};
 
-  const baseInputClass =
-    'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500';
-  const errorClass = error ? 'border-red-500' : '';
+  // Determine disabled state
+  const isDisabled = field.disabled || false;
+
+  // Determine if field has valid value (for success state)
+  const hasValue = value !== null && value !== undefined && value !== '';
+  const showSuccess = hasValue && !error && !isDisabled;
+
+  // Enhanced input styling
+  const baseInputClass = `
+    w-full px-4 py-3 
+    bg-input-bg 
+    border border-input-border 
+    rounded-input 
+    focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent
+    transition-all duration-200
+    disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed
+    ${error ? 'border-input-error focus:ring-input-error' : ''}
+    ${showSuccess ? 'border-input-success' : ''}
+    ${isDisabled ? 'bg-gray-100' : ''}
+  `.trim().replace(/\s+/g, ' ');
 
   return (
-    <div className="mb-4" style={highlightStyle}>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+    <div className="mb-6" style={highlightStyle}>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
         {field.label}
-        {isRequired && <span className="text-red-500 ml-1">*</span>}
+        {isRequired && <span className="text-input-error ml-1">*</span>}
       </label>
 
       {/* Text Input */}
       {field.type === 'text' && (
-        <input
-          type="text"
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${baseInputClass} ${errorClass}`}
-          required={isRequired}
-        />
+        <div className="relative">
+          <input
+            type="text"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className={baseInputClass}
+            required={isRequired}
+            disabled={isDisabled}
+            placeholder="Focus in"
+          />
+          {/* Icons */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            {isDisabled && <Lock className="h-5 w-5 text-gray-400" />}
+            {!isDisabled && showSuccess && <Check className="h-5 w-5 text-input-success" />}
+            {!isDisabled && error && <AlertCircle className="h-5 w-5 text-input-error" />}
+          </div>
+        </div>
       )}
 
       {/* Number Input */}
       {field.type === 'number' && (
-        <input
-          type="number"
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${baseInputClass} ${errorClass}`}
-          required={isRequired}
-        />
+        <div className="relative">
+          <input
+            type="number"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className={baseInputClass}
+            required={isRequired}
+            disabled={isDisabled}
+            placeholder="0"
+          />
+          {/* Icons */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            {isDisabled && <Lock className="h-5 w-5 text-gray-400" />}
+            {!isDisabled && showSuccess && <Check className="h-5 w-5 text-input-success" />}
+            {!isDisabled && error && <AlertCircle className="h-5 w-5 text-input-error" />}
+          </div>
+        </div>
+      )}
+
+      {/* Textarea */}
+      {field.type === 'textarea' && (
+        <div className="relative">
+          <textarea
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className={`${baseInputClass} min-h-[120px] resize-y`}
+            required={isRequired}
+            disabled={isDisabled}
+            placeholder="Enter text here..."
+            rows={5}
+          />
+          {/* Icons */}
+          <div className="absolute top-3 right-3 pointer-events-none">
+            {isDisabled && <Lock className="h-5 w-5 text-gray-400" />}
+            {!isDisabled && showSuccess && <Check className="h-5 w-5 text-input-success" />}
+            {!isDisabled && error && <AlertCircle className="h-5 w-5 text-input-error" />}
+          </div>
+        </div>
       )}
 
       {/* Select Dropdown */}
       {field.type === 'select' && (
-        <select
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${baseInputClass} ${errorClass}`}
-          required={isRequired}
-        >
-          <option value="">-- Select an option --</option>
-          {options.map((opt: any, idx: number) => {
-            // Handle both string arrays and object arrays (like branches)
-            const optValue = typeof opt === 'string' ? opt : opt.id;
-            const optLabel = typeof opt === 'string' ? opt : opt.name;
-            return (
-              <option key={idx} value={optValue}>
-                {optLabel}
-              </option>
-            );
-          })}
-        </select>
+        <div className="relative">
+          <select
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className={baseInputClass}
+            required={isRequired}
+            disabled={isDisabled}
+          >
+            <option value="">-- Select an option --</option>
+            {options.map((opt: any, idx: number) => {
+              // Handle both string arrays and object arrays (like branches)
+              const optValue = typeof opt === 'string' ? opt : opt.id;
+              const optLabel = typeof opt === 'string' ? opt : opt.name;
+              return (
+                <option key={idx} value={optValue}>
+                  {optLabel}
+                </option>
+              );
+            })}
+          </select>
+          {/* Icons */}
+          <div className="absolute inset-y-0 right-8 flex items-center pr-3 pointer-events-none">
+            {isDisabled && <Lock className="h-5 w-5 text-gray-400" />}
+            {!isDisabled && showSuccess && <Check className="h-5 w-5 text-input-success" />}
+            {!isDisabled && error && <AlertCircle className="h-5 w-5 text-input-error" />}
+          </div>
+        </div>
       )}
 
       {/* Radio Group */}
       {field.type === 'radio_group' && (
-        <div className="space-y-2">
+        <div className="space-y-3 bg-input-bg p-4 rounded-input border border-input-border">
           {options.map((opt: any, idx: number) => {
             const optValue = typeof opt === 'string' ? opt : opt.id;
             const optLabel = typeof opt === 'string' ? opt : opt.name;
             return (
-              <label key={idx} className="flex items-center cursor-pointer">
+              <label key={idx} className={`flex items-center cursor-pointer ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 <input
                   type="radio"
                   name={field.id}
                   value={optValue}
                   checked={value === optValue}
                   onChange={(e) => onChange(e.target.value)}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  className="mr-3 h-4 w-4 text-input-focus focus:ring-input-focus border-gray-300"
                   required={isRequired}
+                  disabled={isDisabled}
                 />
-                <span className="text-gray-700">{optLabel}</span>
+                <span className="text-gray-700 text-sm">{optLabel}</span>
               </label>
             );
           })}
+          {isDisabled && (
+            <div className="flex items-center text-gray-500 text-sm mt-2">
+              <Lock className="h-4 w-4 mr-1" />
+              <span>This field is locked</span>
+            </div>
+          )}
         </div>
       )}
 
       {/* Video Upload */}
       {field.type === 'video_upload' && (
         <div>
-          <input
-            type="file"
-            accept="video/*"
-            onChange={handleVideoChange}
-            className={`${baseInputClass} ${errorClass}`}
-            required={isRequired}
-            disabled={uploadingVideo}
-          />
+          <div className="relative">
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleVideoChange}
+              className={baseInputClass}
+              required={isRequired}
+              disabled={uploadingVideo || isDisabled}
+            />
+            {/* Icons */}
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              {isDisabled && <Lock className="h-5 w-5 text-gray-400" />}
+              {!isDisabled && videoPreview && !uploadingVideo && <Check className="h-5 w-5 text-input-success" />}
+            </div>
+          </div>
           
           {uploadingVideo && (
-            <div className="mt-2 text-sm text-blue-600">
+            <div className="mt-2 text-sm text-input-focus flex items-center">
               <span className="inline-block animate-spin mr-2">⏳</span>
               Uploading video...
             </div>
           )}
           
           {uploadError && (
-            <div className="mt-2 text-sm text-red-600">
+            <div className="mt-2 text-sm text-input-error flex items-center">
+              <AlertCircle className="h-4 w-4 mr-1" />
               {uploadError}
             </div>
           )}
@@ -193,16 +276,24 @@ const FieldRenderer = ({ field, value, onChange, formData, error }: FieldRendere
               <video
                 src={videoPreview}
                 controls
-                className="max-w-full h-64 border border-gray-300 rounded"
+                className="max-w-full h-64 border border-input-border rounded-input bg-input-bg"
               />
-              <p className="mt-1 text-sm text-green-600">✓ Video uploaded successfully</p>
+              <p className="mt-2 text-sm text-input-success flex items-center">
+                <Check className="h-4 w-4 mr-1" />
+                Video uploaded successfully
+              </p>
             </div>
           )}
         </div>
       )}
 
       {/* Error Message */}
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && (
+        <div className="mt-2 flex items-center text-sm text-input-error">
+          <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 };

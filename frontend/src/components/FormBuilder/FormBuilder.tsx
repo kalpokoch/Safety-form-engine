@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Check, AlertCircle, Plus, X, Save, FileQuestion, Settings } from 'lucide-react';
 import FieldEditor from './FieldEditor';
 import { FieldDefinition, FormDefinition } from '../../types';
 import apiClient from '../../api/client';
@@ -87,70 +88,95 @@ const FormBuilder = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Form Builder</h1>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-3">
+          <Settings className="h-8 w-8 text-input-focus" />
+          Form Builder
+        </h1>
+        <p className="text-gray-600 mt-2 ml-11">Create custom safety forms with dynamic fields and logic</p>
+      </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-2 border-input-error text-red-700 rounded-input shadow-sm flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-input-error flex-shrink-0 mt-0.5" />
+          <span className="font-medium">{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          {success}
+        <div className="mb-6 p-4 bg-green-50 border-2 border-input-success text-green-700 rounded-input shadow-sm flex items-start gap-3">
+          <Check className="h-5 w-5 text-input-success flex-shrink-0 mt-0.5" />
+          <span className="font-medium">{success}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         {/* Form Metadata */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">Form Details</h2>
+        <div className="bg-white p-8 rounded-xl shadow-md mb-6 border-2 border-input-border">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">Form Details</h2>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Form Title *
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Form Title <span className="text-input-error">*</span>
             </label>
-            <input
-              type="text"
-              value={formTitle}
-              onChange={(e) => setFormTitle(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Safety Inspection Form"
-              required
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
+                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-input focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200"
+                placeholder="e.g., Safety Inspection Form"
+                required
+              />
+              {formTitle && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Check className="h-5 w-5 text-input-success" />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Description
             </label>
-            <textarea
-              value={formDescription}
-              onChange={(e) => setFormDescription(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Brief description of the form..."
-              rows={3}
-            />
+            <div className="relative">
+              <textarea
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-input focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200 min-h-[100px] resize-y"
+                placeholder="Brief description of the form..."
+                rows={3}
+              />
+              {formDescription && (
+                <div className="absolute top-3 right-3 pointer-events-none">
+                  <Check className="h-5 w-5 text-input-success" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Fields Section */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Form Fields</h2>
+        <div className="bg-white p-8 rounded-xl shadow-md mb-6 border-2 border-input-border">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800">Form Fields</h2>
             <button
               type="button"
               onClick={addField}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium"
+              className="px-5 py-2.5 bg-input-focus text-white rounded-input hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow flex items-center gap-2"
             >
-              + Add Field
+              <Plus className="h-5 w-5" />
+              Add Field
             </button>
           </div>
 
           {fields.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No fields added yet. Click "Add Field" to get started.
-            </p>
+            <div className="text-center py-12 bg-input-bg rounded-input border-2 border-dashed border-input-border">
+              <FileQuestion className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500 font-medium mb-2">No fields added yet</p>
+              <p className="text-gray-400 text-sm mb-4">Click "Add Field" to get started building your form</p>
+            </div>
           ) : (
             <div className="space-y-4">
               {fields.map((field, index) => (
@@ -171,16 +197,27 @@ const FormBuilder = () => {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition font-medium"
+            className="px-6 py-3 border-2 border-input-border text-gray-700 rounded-input hover:bg-gray-50 transition-all duration-200 font-semibold flex items-center gap-2 shadow-sm"
           >
+            <X className="h-5 w-5" />
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-input-success text-white rounded-input hover:bg-green-700 transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow"
           >
-            {loading ? 'Creating...' : 'Create Form'}
+            {loading ? (
+              <>
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Save className="h-5 w-5" />
+                Create Form
+              </>
+            )}
           </button>
         </div>
       </form>

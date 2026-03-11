@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'number' | 'select' | 'radio_group' | 'video_upload';
+export type FieldType = 'text' | 'number' | 'textarea' | 'select' | 'radio_group' | 'video_upload';
 
 export type LogicOperator = 'eq' | 'neq' | 'gte' | 'lte' | 'gt' | 'lt';
 export type LogicAction = 'show' | 'hide' | 'require' | 'highlight';
@@ -16,6 +16,7 @@ export interface FieldDefinition {
   label: string;
   type: FieldType;
   required?: boolean;
+  disabled?: boolean;
   options?: string[];
   dataSource?: string;
   logicRules?: LogicRule[];

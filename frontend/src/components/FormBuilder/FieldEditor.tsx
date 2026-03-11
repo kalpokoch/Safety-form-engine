@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { FieldDefinition, FieldType, LogicRule } from '../../types';
 
 interface FieldEditorProps {
@@ -49,49 +50,53 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
     onUpdate({ ...field, logicRules: rules });
   };
 
+  const inputClass = "w-full px-4 py-3 bg-input-bg border border-input-border rounded-input focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200";
+  const labelClass = "block text-sm font-semibold text-gray-700 mb-2";
+
   return (
-    <div className="border border-gray-300 rounded-lg p-4 mb-4 bg-white shadow-sm">
-      <div className="grid grid-cols-2 gap-4 mb-4">
+    <div className="border-2 border-gray-200 rounded-xl p-6 mb-6 bg-white shadow-md">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Field ID */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className={labelClass}>
             Field ID
           </label>
           <input
             type="text"
             value={field.id}
             onChange={(e) => handleFieldChange('id', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputClass}
             placeholder="e.g., employee_name"
           />
         </div>
 
         {/* Field Label */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className={labelClass}>
             Label
           </label>
           <input
             type="text"
             value={field.label}
             onChange={(e) => handleFieldChange('label', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputClass}
             placeholder="e.g., Employee Name"
           />
         </div>
 
         {/* Field Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className={labelClass}>
             Type
           </label>
           <select
             value={field.type}
             onChange={(e) => handleFieldChange('type', e.target.value as FieldType)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputClass}
           >
             <option value="text">Text</option>
             <option value="number">Number</option>
+            <option value="textarea">Textarea</option>
             <option value="select">Select</option>
             <option value="radio_group">Radio Group</option>
             <option value="video_upload">Video Upload</option>
@@ -99,29 +104,38 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
         </div>
 
         {/* Required Checkbox */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-6">
           <label className="flex items-center cursor-pointer">
             <input
               type="checkbox"
               checked={field.required || false}
               onChange={(e) => handleFieldChange('required', e.target.checked)}
-              className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="mr-2 h-4 w-4 text-input-focus focus:ring-input-focus border-gray-300 rounded"
             />
             <span className="text-sm font-medium text-gray-700">Required</span>
+          </label>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={field.disabled || false}
+              onChange={(e) => handleFieldChange('disabled', e.target.checked)}
+              className="mr-2 h-4 w-4 text-input-focus focus:ring-input-focus border-gray-300 rounded"
+            />
+            <span className="text-sm font-medium text-gray-700">Disabled</span>
           </label>
         </div>
 
         {/* Options (for select/radio) */}
         {(field.type === 'select' || field.type === 'radio_group') && (
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={labelClass}>
               Options (comma-separated)
             </label>
             <input
               type="text"
               value={field.options?.join(', ') || ''}
               onChange={(e) => handleOptionsChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               placeholder="e.g., Option 1, Option 2, Option 3"
             />
           </div>
@@ -129,45 +143,45 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
 
         {/* Data Source */}
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className={labelClass}>
             Data Source (optional)
           </label>
           <input
             type="text"
             value={field.dataSource || ''}
             onChange={(e) => handleFieldChange('dataSource', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputClass}
             placeholder="e.g., /metadata/branches"
           />
         </div>
       </div>
 
       {/* Logic Rules Section */}
-      <div className="mb-4">
+      <div className="mb-6">
         <button
           type="button"
           onClick={() => setShowLogicRules(!showLogicRules)}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          className="text-sm text-input-focus hover:text-blue-700 font-semibold px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors"
         >
           {showLogicRules ? '▼' : '▶'} Logic Rules ({field.logicRules?.length || 0})
         </button>
 
         {showLogicRules && (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-4">
             {previousFields.length === 0 && (
-              <div className="text-sm text-gray-500 italic p-3 bg-gray-50 rounded">
+              <div className="text-sm text-gray-500 italic p-4 bg-input-bg rounded-input border border-input-border">
                 Logic rules can only reference fields that appear before this field in the form.
                 Add fields above this one to enable logic rules.
               </div>
             )}
             
             {field.logicRules?.map((rule, index) => (
-              <div key={index} className="border border-gray-200 rounded p-3 bg-gray-50">
-                <div className="grid grid-cols-5 gap-2 mb-2">
+              <div key={index} className="border-2 border-input-border rounded-input p-4 bg-input-bg">
+                <div className="grid grid-cols-5 gap-3 mb-2">
                   <select
                     value={rule.when}
                     onChange={(e) => updateLogicRule(index, { ...rule, when: e.target.value })}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-3 py-2 border border-input-border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-input-focus"
                   >
                     <option value="">When field...</option>
                     {previousFields.map((f) => (
@@ -180,7 +194,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
                   <select
                     value={rule.operator}
                     onChange={(e) => updateLogicRule(index, { ...rule, operator: e.target.value as any })}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-3 py-2 border border-input-border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-input-focus"
                   >
                     <option value="eq">equals</option>
                     <option value="neq">not equals</option>
@@ -194,14 +208,14 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
                     type="text"
                     value={rule.value}
                     onChange={(e) => updateLogicRule(index, { ...rule, value: e.target.value })}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-3 py-2 border border-input-border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-input-focus"
                     placeholder="value"
                   />
 
                   <select
                     value={rule.action}
                     onChange={(e) => updateLogicRule(index, { ...rule, action: e.target.value as any })}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-3 py-2 border border-input-border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-input-focus"
                   >
                     <option value="show">Show</option>
                     <option value="hide">Hide</option>
@@ -212,7 +226,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
                   <button
                     type="button"
                     onClick={() => deleteLogicRule(index)}
-                    className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                    className="px-3 py-2 bg-input-error text-white rounded-md text-sm hover:bg-red-600 transition-colors font-medium"
                   >
                     Delete
                   </button>
@@ -223,7 +237,7 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
                     type="color"
                     value={rule.color || '#ffff00'}
                     onChange={(e) => updateLogicRule(index, { ...rule, color: e.target.value })}
-                    className="w-20 h-8 border border-gray-300 rounded"
+                    className="w-24 h-10 border-2 border-input-border rounded-md cursor-pointer"
                   />
                 )}
               </div>
@@ -233,10 +247,10 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
               type="button"
               onClick={addLogicRule}
               disabled={previousFields.length === 0}
-              className={`text-sm font-medium ${
+              className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${
                 previousFields.length === 0
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-green-600 hover:text-green-800'
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
+                  : 'text-input-success hover:text-green-700 hover:bg-green-50'
               }`}
               title={
                 previousFields.length === 0
@@ -255,8 +269,9 @@ const FieldEditor = ({ field, onUpdate, onDelete, allFields }: FieldEditorProps)
         <button
           type="button"
           onClick={onDelete}
-          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm"
+          className="px-5 py-2.5 bg-input-error text-white rounded-input hover:bg-red-600 transition-all flex items-center gap-2 font-medium shadow-sm hover:shadow"
         >
+          <Trash2 className="h-4 w-4" />
           Delete Field
         </button>
       </div>
