@@ -137,13 +137,12 @@ const FormBuilder = () => {
         <div className={`col-span-12 lg:col-span-3 ${mobileTab !== "add" ? "hidden lg:block" : ""}`}>
           <div className="content-card p-4">
             <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Field Types</h3>
-            {/* Mobile: horizontal scroll. Desktop: grid */}
-            <div className="flex lg:grid lg:grid-cols-1 gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-1 px-1">
+            <div className="grid grid-cols-1 gap-2">
               {FIELD_TYPES.map(({ type, label, icon: Icon }) => (
                 <button
                   key={type}
                   onClick={() => addField(type)}
-                  className="flex items-center gap-2 md:gap-3 p-3 rounded-lg border border-border hover:bg-muted hover:border-primary/30 transition-colors text-left shrink-0 min-w-[120px] lg:min-w-0 min-h-[44px]"
+                  className="flex items-center gap-2 md:gap-3 p-3 rounded-lg border border-border hover:bg-muted hover:border-primary/30 transition-colors text-left min-h-[44px]"
                 >
                   <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
