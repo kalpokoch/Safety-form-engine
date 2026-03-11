@@ -30,6 +30,7 @@ const FormBuilder = () => {
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<"add" | "preview">("add");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const addField = (type: FormField["type"]) => {
     fieldCounter++;
@@ -52,6 +53,27 @@ const FormBuilder = () => {
 
   const removeField = (index: number) => {
     setFields(fields.filter((_, i) => i !== index));
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const newFields = [...fields];
+    const draggedField = newFields[draggedIndex];
+    newFields.splice(draggedIndex, 1);
+    newFields.splice(index, 0, draggedField);
+    
+    setFields(newFields);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
   };
 
   const handleSave = async () => {
@@ -176,8 +198,13 @@ const FormBuilder = () => {
                   <FieldCard
                     key={field.id}
                     field={field}
+                    index={i}
+                    isDragging={draggedIndex === i}
                     onUpdate={(updates) => updateField(i, updates)}
                     onRemove={() => removeField(i)}
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDragEnd={handleDragEnd}
                   />
                 ))}
               </div>
@@ -191,17 +218,40 @@ const FormBuilder = () => {
 
 function FieldCard({
   field,
+  index,
+  isDragging,
   onUpdate,
   onRemove,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
 }: {
   field: FormField;
+  index: number;
+  isDragging: boolean;
   onUpdate: (u: Partial<FormField>) => void;
   onRemove: () => void;
+  onDragStart: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
 }) {
   return (
-    <div className="border border-border rounded-xl p-3 md:p-4 bg-card">
+    <div 
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      className={`border border-border rounded-xl p-3 md:p-4 bg-card transition-all ${
+        isDragging ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+      }`}
+    >
       <div className="flex items-start gap-2 md:gap-3">
-        <GripVertical className="w-5 h-5 text-muted-foreground mt-2 shrink-0 cursor-grab hidden sm:block" />
+        <div 
+          className="cursor-grab active:cursor-grabbing hidden sm:block"
+          onMouseDown={(e) => e.currentTarget.closest('[draggable]')?.setAttribute('draggable', 'true')}
+        >
+          <GripVertical className="w-5 h-5 text-muted-foreground mt-2 shrink-0" />
+        </div>
         <div className="flex-1 space-y-3 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
             <input
