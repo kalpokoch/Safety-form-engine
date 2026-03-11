@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { fetchFormDefinition, fetchBranches, submitForm, uploadVideo } from "@/services/api";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import FormRendererSkeleton from "@/components/FormRendererSkeleton";
 import { toast } from "sonner";
 import type { FormDefinition, Branch, FormField, LogicRule } from "@/types/forms";
 import { CheckCircle2, AlertCircle } from "lucide-react";
@@ -84,7 +84,7 @@ const FormRenderer = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <FormRendererSkeleton />;
   if (!formDef) return <div className="p-12 text-center text-muted-foreground">Form not found</div>;
 
   return (

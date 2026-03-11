@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FileText, Send, GitBranch, Layers, Plus, Copy, ArrowRight, Search } from "lucide-react";
+import { FileText, Send, GitBranch, Layers, Plus, Copy, ArrowRight, Search, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import StatsCard from "@/components/StatsCard";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
 import { fetchBranches, fetchAllForms } from "@/services/api";
 import type { FormDefinition } from "@/types/forms";
 
@@ -13,6 +14,19 @@ const Dashboard = () => {
   const [savedForms, setSavedForms] = useState<FormDefinition[]>([]);
 
   const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+
+  const handleShare = (formId: string) => {
+    const shareableLink = `${window.location.origin}/form/${formId}`;
+    navigator.clipboard.writeText(shareableLink)
+      .then(() => {
+        toast.success("Link copied to clipboard!", {
+          description: "Share this link with others to fill the form"
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy link");
+      });
+  };
 
   useEffect(() => {
     Promise.all([fetchBranches(), fetchAllForms()])
@@ -28,7 +42,7 @@ const Dashboard = () => {
     f.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
@@ -108,6 +122,12 @@ const Dashboard = () => {
                             Fill <ArrowRight className="w-3 h-3" />
                           </Link>
                           <button
+                            onClick={() => handleShare(form.id)}
+                            className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-xs"
+                          >
+                            <Share2 className="w-3 h-3" /> Share
+                          </button>
+                          <button
                             onClick={() => navigator.clipboard.writeText(form.id)}
                             className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-xs"
                           >
@@ -139,6 +159,12 @@ const Dashboard = () => {
                     >
                       Fill Form <ArrowRight className="w-3 h-3" />
                     </Link>
+                    <button
+                      onClick={() => handleShare(form.id)}
+                      className="btn-secondary text-xs py-2 px-3 min-h-[44px] flex items-center gap-1"
+                    >
+                      <Share2 className="w-3 h-3" /> Share
+                    </button>
                     <button
                       onClick={() => navigator.clipboard.writeText(form.id)}
                       className="btn-secondary text-xs py-2 px-3 min-h-[44px] flex items-center gap-1"
