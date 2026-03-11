@@ -1,79 +1,22 @@
-import React from 'react';
-import { Check, AlertCircle, LucideIcon } from 'lucide-react';
+import * as React from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  rightIcon?: LucideIcon;
-  leftIcon?: LucideIcon;
-  helperText?: string;
-  showSuccess?: boolean;
-}
+import { cn } from "@/lib/utils";
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      label,
-      error,
-      rightIcon: RightIcon,
-      leftIcon: LeftIcon,
-      helperText,
-      showSuccess = false,
-      className = '',
-      required,
-      ...props
-    },
-    ref
-  ) => {
-    const baseInputStyles = `
-      w-full px-4 py-3
-      bg-dark-bg
-      border border-dark-border
-      rounded-lg
-      transition-all duration-200
-      text-dark-text-primary
-      placeholder-dark-text-muted
-      text-sm
-      focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent
-      disabled:opacity-50 disabled:cursor-not-allowed
-      ${error ? 'border-input-error focus:ring-input-error' : ''}
-      ${showSuccess ? 'border-input-success focus:ring-input-success' : ''}
-      ${LeftIcon ? 'pl-10' : ''}
-      ${RightIcon || error || showSuccess ? 'pr-10' : ''}
-    `.trim();
-
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
     return (
-      <div className={`${className}`}>
-        {label && (
-          <label className="block text-sm font-semibold text-dark-text-primary mb-1.5">
-            {label}
-            {required && <span className="text-input-error ml-1">*</span>}
-          </label>
+      <input
+        type={type}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          className,
         )}
-        <div className="relative">
-          {LeftIcon && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <LeftIcon className="h-5 w-5 text-dark-text-muted" />
-            </div>
-          )}
-          <input ref={ref} className={baseInputStyles} required={required} {...props} />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            {error && <AlertCircle className="h-5 w-5 text-input-error" />}
-            {!error && showSuccess && <Check className="h-5 w-5 text-input-success" />}
-            {!error && !showSuccess && RightIcon && <RightIcon className="h-5 w-5 text-dark-text-muted" />}
-          </div>
-        </div>
-        {error && (
-          <p className="mt-1.5 text-xs text-input-error">{error}</p>
-        )}
-        {!error && helperText && (
-          <p className="mt-1.5 text-xs text-dark-text-muted">{helperText}</p>
-        )}
-      </div>
+        ref={ref}
+        {...props}
+      />
     );
-  }
+  },
 );
+Input.displayName = "Input";
 
-Input.displayName = 'Input';
-
-export default Input;
+export { Input };
