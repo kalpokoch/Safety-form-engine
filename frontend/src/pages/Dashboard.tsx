@@ -1,18 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FileText, Send, GitBranch, Layers, Plus, Copy, ArrowRight, Search, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import StatsCard from "@/components/StatsCard";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import { fetchBranches, fetchAllForms, fetchSubmissions } from "@/services/api";
 import type { FormDefinition } from "@/types/forms";
 
 const Dashboard = () => {
-  const [branches, setBranches] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [savedForms, setSavedForms] = useState<FormDefinition[]>([]);
-  const [submissions, setSubmissions] = useState<any[]>([]);
+
+  const { data: branches = [], isLoading: branchesLoading } = useQuery({
+    queryKey: ['branches'],
+    queryFn: fetchBranches,
+  });
+
+  const { data: savedForms = [], isLoading: formsLoading } = useQuery({
+    queryKey: ['forms'],
+    queryFn: fetchAllForms,
+  });
+
+  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
+    queryKey: ['submissions'],
+    queryFn: fetchSubmissions,
+  });
+
+  const loading = branchesLoading || formsLoading || submissionsLoading;
 
   const handleShare = (formId: string) => {
     const shareableLink = `${window.location.origin}/form/${formId}`;
@@ -26,17 +40,6 @@ const Dashboard = () => {
         toast.error("Failed to copy link");
       });
   };
-
-  useEffect(() => {
-    Promise.all([fetchBranches(), fetchAllForms(), fetchSubmissions()])
-      .then(([branchesData, formsData, submissionsData]) => { 
-        setBranches(branchesData); 
-        setSavedForms(formsData);
-        setSubmissions(submissionsData);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   const filtered = savedForms.filter((f) =>
     f.title.toLowerCase().includes(search.toLowerCase())

@@ -1,23 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import type { Submission } from "@/types/forms";
 import { fetchSubmissions, fetchBranches } from "@/services/api";
+import SubmissionsSkeleton from "@/components/SubmissionsSkeleton";
 
 const Submissions = () => {
   const [search, setSearch] = useState("");
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    Promise.all([fetchSubmissions(), fetchBranches()])
-      .then(([submissionsData, branchesData]) => { 
-        setSubmissions(submissionsData);
-        setBranches(branchesData);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
+    queryKey: ['submissions'],
+    queryFn: fetchSubmissions,
+  });
+
+  const { data: branches = [], isLoading: branchesLoading } = useQuery({
+    queryKey: ['branches'],
+    queryFn: fetchBranches,
+  });
+
+  const loading = submissionsLoading || branchesLoading;
 
   // Map branch_id to branch_name
   const submissionsWithBranchName = submissions.map(sub => ({
@@ -32,12 +33,7 @@ const Submissions = () => {
   );
 
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground mb-4 md:mb-6">Submissions</h1>
-        <div className="content-card p-8 text-center text-muted-foreground">Loading...</div>
-      </div>
-    );
+    return <SubmissionsSkeleton />;
   }
 
   return (

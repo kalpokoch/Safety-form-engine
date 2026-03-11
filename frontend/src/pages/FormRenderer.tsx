@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFormDefinition, fetchBranches, submitForm, uploadVideo } from "@/services/api";
 import FormRendererSkeleton from "@/components/FormRendererSkeleton";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -11,13 +12,23 @@ import type { FormDefinition, Branch, FormField, LogicRule } from "@/types/forms
 const FormRenderer = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const [formDef, setFormDef] = useState<FormDefinition | null>(null);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submissionId, setSubmissionId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const { data: formDef, isLoading: formLoading } = useQuery({
+    queryKey: ['form', formId],
+    queryFn: () => fetchFormDefinition(formId!),
+    enabled: !!formId,
+  });
+
+  const { data: branches = [] } = useQuery({
+    queryKey: ['branches'],
+    queryFn: fetchBranches,
+  });
+
+  const loading = formLoading;
 
   const { control, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<Record<string, any>>({
     defaultValues: { branch_id: "" },
@@ -25,13 +36,18 @@ const FormRenderer = () => {
 
   const watchAll = watch();
 
-  useEffect(() => {
-    if (!formId) return;
-    Promise.all([fetchFormDefinition(formId), fetchBranches()])
-      .then(([form, br]) => { setFormDef(form); setBranches(br); })
-      .catch(() => toast.error("Failed to load form"))
-      .finally(() => setLoading(false));
-  }, [formId]);
+  const submitMutation = useMutation({
+    mutationFn: (data: { formId: string; body: any }) => 
+      submitForm(data.formId, data.body),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
+      setSubmissionId(result?.id || crypto.randomUUID());
+      setIsSubmitted(true);
+    },
+    onError: (err: any) => {
+      setErrorMessage(err?.message || "Failed to submit form. Please try again.");
+    },
+  });
 
   const fieldStates = useMemo(() => {
     if (!formDef) return {};
@@ -65,17 +81,8 @@ const FormRenderer = () => {
       }
     }
     const { branch_id, ...submission_data } = data;
-    setSubmitting(true);
     setErrorMessage("");
-    try {
-      const result = await submitForm(formId, { branch_id, submission_data });
-      setSubmissionId(result?.id || crypto.randomUUID());
-      setIsSubmitted(true);
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to submit form. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    submitMutation.mutate({ formId: formId!, body: { branch_id, submission_data } });
   };
 
   const handleReset = () => {
@@ -209,10 +216,10 @@ const FormRenderer = () => {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitMutation.isPending}
             className="btn-primary w-full md:w-auto md:min-w-[200px] md:mx-auto md:block flex items-center justify-center gap-2 py-3 min-h-[44px]"
           >
-            {submitting ? <LoadingSpinner className="!p-0 [&_svg]:w-5 [&_svg]:h-5" /> : "Submit Form"}
+            {submitMutation.isPending ? <LoadingSpinner className="!p-0 [&_svg]:w-5 [&_svg]:h-5" /> : "Submit Form"}
           </button>
         </form>
       </div>

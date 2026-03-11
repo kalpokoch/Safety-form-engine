@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from routers import metadata, forms, uploads
 from database import engine, Base
@@ -14,6 +15,9 @@ UPLOAD_DIR = Path("uploads/videos")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Safety Form Engine")
+
+# Add compression middleware (compresses responses > 500 bytes)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
     CORSMiddleware,
