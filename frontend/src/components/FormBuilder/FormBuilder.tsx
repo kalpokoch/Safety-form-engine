@@ -88,35 +88,35 @@ const FormBuilder = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-3">
-          <Settings className="h-8 w-8 text-input-focus" />
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-dark-text-primary flex items-center gap-2.5">
+          <Settings className="h-7 w-7 text-input-focus" />
           Form Builder
         </h1>
-        <p className="text-gray-600 mt-2 ml-11">Create custom safety forms with dynamic fields and logic</p>
+        <p className="text-dark-text-secondary text-sm mt-1.5 ml-10">Create custom safety forms with dynamic fields and logic</p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-2 border-input-error text-red-700 rounded-input shadow-sm flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-input-error flex-shrink-0 mt-0.5" />
-          <span className="font-medium">{error}</span>
+        <div className="mb-4 p-3 bg-input-error/10 border border-input-error/50 text-input-error rounded-lg shadow-sm flex items-start gap-2.5">
+          <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+          <span className="font-medium text-sm">{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-green-50 border-2 border-input-success text-green-700 rounded-input shadow-sm flex items-start gap-3">
-          <Check className="h-5 w-5 text-input-success flex-shrink-0 mt-0.5" />
-          <span className="font-medium">{success}</span>
+        <div className="mb-4 p-3 bg-input-success/10 border border-input-success/50 text-input-success rounded-lg shadow-sm flex items-start gap-2.5">
+          <Check className="h-4 w-4 flex-shrink-0 mt-0.5" />
+          <span className="font-medium text-sm">{success}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         {/* Form Metadata */}
-        <div className="bg-white p-8 rounded-xl shadow-md mb-6 border-2 border-input-border">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">Form Details</h2>
+        <div className="bg-dark-card p-6 rounded-lg shadow-lg mb-4 border border-dark-border">
+          <h2 className="text-xl font-semibold mb-4 text-dark-text-primary">Form Details</h2>
 
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-dark-text-primary mb-1.5">
               Form Title <span className="text-input-error">*</span>
             </label>
             <div className="relative">
@@ -124,33 +124,33 @@ const FormBuilder = () => {
                 type="text"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-input focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200 text-dark-text-primary placeholder-dark-text-muted text-sm"
                 placeholder="e.g., Safety Inspection Form"
                 required
               />
               {formTitle && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <Check className="h-5 w-5 text-input-success" />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none">
+                  <Check className="h-4 w-4 text-input-success" />
                 </div>
               )}
             </div>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-0">
+            <label className="block text-sm font-semibold text-dark-text-primary mb-1.5">
               Description
             </label>
             <div className="relative">
               <textarea
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
-                className="w-full px-4 py-3 bg-input-bg border border-input-border rounded-input focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200 min-h-[100px] resize-y"
+                className="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-input-focus focus:border-transparent transition-all duration-200 min-h-[80px] resize-y text-dark-text-primary placeholder-dark-text-muted text-sm"
                 placeholder="Brief description of the form..."
                 rows={3}
               />
               {formDescription && (
-                <div className="absolute top-3 right-3 pointer-events-none">
-                  <Check className="h-5 w-5 text-input-success" />
+                <div className="absolute top-2.5 right-2.5 pointer-events-none">
+                  <Check className="h-4 w-4 text-input-success" />
                 </div>
               )}
             </div>
@@ -158,24 +158,24 @@ const FormBuilder = () => {
         </div>
 
         {/* Fields Section */}
-        <div className="bg-white p-8 rounded-xl shadow-md mb-6 border-2 border-input-border">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">Form Fields</h2>
+        <div className="bg-dark-card p-6 rounded-lg shadow-lg mb-4 border border-dark-border">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-dark-text-primary">Form Fields</h2>
             <button
               type="button"
               onClick={addField}
-              className="px-5 py-2.5 bg-input-focus text-white rounded-input hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow flex items-center gap-2"
+              className="px-4 py-2 bg-input-focus text-white rounded-lg hover:bg-indigo-600 transition-all duration-200 font-medium shadow-sm hover:shadow flex items-center gap-2 text-sm"
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4" />
               Add Field
             </button>
           </div>
 
           {fields.length === 0 ? (
-            <div className="text-center py-12 bg-input-bg rounded-input border-2 border-dashed border-input-border">
-              <FileQuestion className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500 font-medium mb-2">No fields added yet</p>
-              <p className="text-gray-400 text-sm mb-4">Click "Add Field" to get started building your form</p>
+            <div className="text-center py-10 bg-dark-bg rounded-lg border-2 border-dashed border-dark-border">
+              <FileQuestion className="h-12 w-12 mx-auto text-dark-text-muted mb-3" />
+              <p className="text-dark-text-secondary font-medium mb-1.5 text-sm">No fields added yet</p>
+              <p className="text-dark-text-muted text-xs">Click "Add Field" to get started building your form</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -193,28 +193,28 @@ const FormBuilder = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="px-6 py-3 border-2 border-input-border text-gray-700 rounded-input hover:bg-gray-50 transition-all duration-200 font-semibold flex items-center gap-2 shadow-sm"
+            className="px-4 py-2 border border-dark-border text-dark-text-secondary rounded-lg hover:bg-dark-hover transition-all duration-200 font-medium flex items-center gap-2 shadow-sm text-sm"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-input-success text-white rounded-input hover:bg-green-700 transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow"
+            className="px-4 py-2 bg-input-success text-white rounded-lg hover:bg-emerald-700 transition-all duration-200 font-medium disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow text-sm"
           >
             {loading ? (
               <>
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                 Creating...
               </>
             ) : (
               <>
-                <Save className="h-5 w-5" />
+                <Save className="h-4 w-4" />
                 Create Form
               </>
             )}
